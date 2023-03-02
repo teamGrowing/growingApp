@@ -1,0 +1,65 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:prettier/recommended",
+    "airbnb",
+    "airbnb/hooks",
+    "airbnb-typescript",
+    "prettier"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["react", "@typescript-eslint", "react-hooks", "prettier"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": 0,
+    "no-unused-vars": 0,
+    "react/react-in-jsx-scope": 0,
+    "react/prop-types": 0,
+    "prettier/prettier": 0,
+    "react/require-default-props": [
+      "error",
+      {
+        "forbidDefaultForRequired": true,
+        "functions": "ignore"
+      }
+    ],
+    "react/function-component-definition": [
+      2,
+      {
+        "namedComponents": [
+          "arrow-function",
+          "function-declaration",
+          "function-expression"
+        ],
+        "unnamedComponents": ["arrow-function", "function-expression"]
+      }
+    ],
+    "react/jsx-props-no-spreading": [0, { "explicitSpread": "ignore" }],
+    "arrow-body-style": 0
+  }
+}
