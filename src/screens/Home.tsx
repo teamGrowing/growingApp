@@ -23,6 +23,7 @@ const Home = () => {
         <WebView
           ref={webViewRef}
           source={{ uri: 'http://localhost:3000' }}
+          allowsInlineMediaPlayback={true}
           allowsFullscreenVideo={false}
           javaScriptEnabled={true}
           domStorageEnabled={true}
