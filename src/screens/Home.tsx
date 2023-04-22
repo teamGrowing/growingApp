@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import WebView from 'react-native-webview';
+import SplashScreen from 'react-native-splash-screen';
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -10,6 +11,10 @@ import {
 
 const Home = () => {
   const webViewRef = useRef<WebView | null>(null);
+
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
 
   return (
     <KeyboardAvoidingView
