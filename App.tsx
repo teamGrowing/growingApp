@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import SplashScreen from 'react-native-splash-screen';
 import messaging from '@react-native-firebase/messaging';
 import WebView from 'react-native-webview';
 import {
@@ -72,7 +73,10 @@ const App = () => {
   }
 
   useEffect(() => {
+    const timer = setTimeout(() => SplashScreen.hide(), 2000);
     checkApplicationPermission();
+    //
+    return () => clearTimeout(timer);
   }, []);
 
   const foregroundListener = useCallback(() => {
