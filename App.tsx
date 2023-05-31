@@ -1,8 +1,41 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
-import Home from './src/screens/Home';
+import WebView from 'react-native-webview';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  StyleSheet,
+} from 'react-native';
+import { createWebViewMessage, getWebViewMessage } from 'utils/bridge.util';
 
 const App = () => {
+  const webViewRef = useRef<WebView | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+
+  const onMessage = (e: { nativeEvent: { data: string } }) => {
+    const { type, message } = getWebViewMessage(e.nativeEvent.data);
+
+    if (type === 'REQ_CAMERA_PERMISSION') {
+      console.log(message);
+    }
+  };
+
+  const sendMessage = (message: string) => {
+    if (webViewRef.current) {
+      webViewRef.current.postMessage(
+        createWebViewMessage('FCM_TOKEN', message)
+      );
+    }
+  };
+
+  const onLoadEnd = () => {
+    if (token !== null && webViewRef !== null) {
+      sendMessage(token);
+    }
+  };
+
   async function checkApplicationPermission() {
     const authorizationStatus = await messaging().requestPermission();
 
@@ -10,21 +43,11 @@ const App = () => {
       authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED) {
-      console.log('User has notification permissions enabled.');
-    } else if (
-      authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL
-    ) {
-      console.log('User has provisional notification permissions.');
-    } else {
-      console.log('User has notification permissions disabled');
-    }
-
     if (enabled) {
       await messaging()
         .getToken()
         .then((fcmToken) => {
-          console.log('fcmToken:', fcmToken);
+          setToken(fcmToken);
         });
     }
   }
@@ -43,6 +66,38 @@ const App = () => {
     foregroundListener();
   }, []);
 
-  return <Home></Home>;
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback
+        onPress={Keyboard.dismiss}
+        style={styles.container}
+      >
+        <WebView
+          ref={webViewRef}
+          source={{ uri: 'http://localhost:3000' }}
+          allowsInlineMediaPlayback={true}
+          allowsFullscreenVideo={false}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          startInLoadingState={true}
+          hideKeyboardAccessoryView={true}
+          scrollEnabled={false}
+          style={styles.container}
+          onMessage={onMessage}
+          onLoadEnd={onLoadEnd}
+        />
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+  );
 };
 export default App;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+});
