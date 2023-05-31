@@ -64,3 +64,5 @@ yarn-error.log
 
 .history
 .xcode.env
+
+ios/GoogleService-Info.plist
