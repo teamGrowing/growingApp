@@ -16,6 +16,12 @@ module.exports = {
           '.js',
           '.json',
         ],
+        alias: {
+          '@': './src',
+          '@components': './src/components',
+          '@screens': './src/screens',
+          '@utils': './src/utils',
+        },
       },
     ],
   ],

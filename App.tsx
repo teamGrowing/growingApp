@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
 } from 'react-native';
-import { createWebViewMessage, getWebViewMessage } from 'utils/bridge.util';
+import { getWebViewMessage, createWebViewMessage } from '@utils/bridge.util';
 
 const App = () => {
   const webViewRef = useRef<WebView | null>(null);
