@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   StyleSheet,
+  PermissionsAndroid,
 } from 'react-native';
 import { getWebViewMessage, createWebViewMessage } from '@utils/bridge.util';
 
@@ -37,14 +38,25 @@ const App = () => {
   };
 
   async function checkApplicationPermission() {
-    const authorizationStatus = await messaging().requestPermission();
+    if (Platform.OS === 'ios') {
+      const authorizationStatus = await messaging().requestPermission();
 
-    const enabled =
-      authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      const enabled =
+        authorizationStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authorizationStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (enabled) {
-      await messaging()
+      if (enabled) {
+        await messaging()
+          .getToken()
+          .then((fcmToken) => {
+            setToken(fcmToken);
+          });
+      }
+    } else {
+      PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      );
+      messaging()
         .getToken()
         .then((fcmToken) => {
           setToken(fcmToken);
@@ -77,7 +89,7 @@ const App = () => {
       >
         <WebView
           ref={webViewRef}
-          source={{ uri: 'http://localhost:3000' }}
+          source={{ uri: 'http://192.168.0.41:3000' }}
           allowsInlineMediaPlayback={true}
           allowsFullscreenVideo={false}
           javaScriptEnabled={true}
