@@ -56,5 +56,11 @@
 		</array>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>채팅방에서 사진 촬영 및 전송 기능을 위해 권한이 필요합니다.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>채팅방에서 기기 내 사진을 업로드 하기 위해 권한이 필요합니다.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>채팅방에서 주고 받은 사진을 기기에 저장하기 위해 권한이 필요합니다.</string>
 	</dict>
 </plist>

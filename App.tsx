@@ -9,15 +9,14 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   PermissionsAndroid,
-  Linking,
 } from 'react-native';
 import { getWebViewMessage, createWebViewMessage } from '@utils/bridge.util';
 import { BridgeType } from '@/types/BridgeType';
+import { requestPermissions } from '@/services/permission.service';
 
 const App = () => {
   const webViewRef = useRef<WebView | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [hasKakao, setHasKakao] = useState<boolean>(true);
 
   const onMessage = (e: { nativeEvent: { data: string } }) => {
     const { type, message } = getWebViewMessage(e.nativeEvent.data);
@@ -38,12 +37,9 @@ const App = () => {
     if (token !== null) {
       sendMessage('FCM_TOKEN', token);
     }
-    if (!hasKakao) {
-      sendMessage('NO_KAKAO');
-    }
   };
 
-  async function checkApplicationPermission() {
+  const requestAlarmPermission = async () => {
     if (Platform.OS === 'ios') {
       const authorizationStatus = await messaging().requestPermission();
 
@@ -58,26 +54,17 @@ const App = () => {
             setToken(fcmToken);
           });
       }
-    } else {
-      // android
-      PermissionsAndroid.request(
+    } else if (Platform.OS === 'android') {
+      await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-      ).then(() => {
-        messaging()
-          .getToken()
-          .then((fcmToken) => {
-            setToken(fcmToken);
-          });
-      });
+      );
+      messaging()
+        .getToken()
+        .then((fcmToken) => {
+          setToken(fcmToken);
+        });
     }
-  }
-
-  useEffect(() => {
-    const timer = setTimeout(() => SplashScreen.hide(), 2000);
-    checkApplicationPermission();
-    //
-    return () => clearTimeout(timer);
-  }, []);
+  };
 
   const foregroundListener = useCallback(() => {
     messaging().onMessage(async (message) => {
@@ -85,23 +72,19 @@ const App = () => {
     });
   }, []);
 
-  useEffect(() => {
-    foregroundListener();
-  }, []);
-
-  const handleWebViewLoadStart = () => {
-    // 카카오톡 앱 설치 여부 확인
-    Linking.canOpenURL('kakaotalk://')
-      .then((supported) => {
-        if (!supported) {
-          // 카카오톡 앱이 설치되지 않은 경우
-          setHasKakao(false);
-        }
-      })
-      .catch((error) => {
-        console.log('Linking Error:', error);
-      });
+  const requestAllPermissions = async () => {
+    await requestPermissions('ALBUM_ADD');
+    await requestPermissions('ALBUM_READ');
+    await requestPermissions('CAMERA');
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => SplashScreen.hide(), 2000);
+    requestAlarmPermission();
+    foregroundListener();
+    requestAllPermissions();
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -125,7 +108,6 @@ const App = () => {
           style={styles.container}
           onMessage={onMessage}
           onLoadEnd={onLoadEnd}
-          onLoadStart={handleWebViewLoadStart}
         />
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
